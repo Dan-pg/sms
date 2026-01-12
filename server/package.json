@@ -2,6 +2,7 @@
     "name": "ft-sms-backend",
     "version": "1.0.0",
     "description": "Backend for FutureTech Student Management System",
+    "type": "commonjs",
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
