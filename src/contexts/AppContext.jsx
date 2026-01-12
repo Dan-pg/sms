@@ -2,6 +2,9 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { differenceInDays, isFuture, isPast } from 'date-fns';
 import { CheckCircle, Warning, Info, X } from 'phosphor-react';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 const ToastContext = createContext();
 
 const ToastContainer = ({ toasts, removeToast }) => {
@@ -134,10 +137,16 @@ export const AppProvider = ({ children }) => {
         })
       });
       if (res.ok) {
-        fetchData();
+        await fetchData();
+        notify('Class scheduled successfully!', 'success');
+      } else {
+        const errorData = await res.json();
+        console.error("Failed to add class:", errorData);
+        notify(`Failed to schedule class: ${errorData.error || 'Unknown error'}`, 'error');
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error adding class:", err);
+      notify('Network error when scheduling class.', 'error');
     }
   };
 

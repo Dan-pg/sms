@@ -52,16 +52,18 @@ app.get('/api/classes', async (req, res) => {
 
 // Create Class
 app.post('/api/classes', async (req, res) => {
-    const { id, name, startDate, endDate, schedule, status, price } = req.body;
+    console.log('Received POST /api/classes:', req.body);
+    const { id, name, startDate, endDate, schedule, status, price, trainers } = req.body;
     try {
         const result = await db.query(
-            'INSERT INTO classes (id, name, start_date, end_date, schedule, status, price) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-            [id, name, startDate, endDate, schedule, status, price]
+            'INSERT INTO classes (id, name, start_date, end_date, schedule, status, price, trainers) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+            [id, name, startDate, endDate, schedule, status, price, trainers]
         );
+        console.log('Class created successfully:', result.rows[0]);
         res.json(result.rows[0]);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        console.error('Error creating class:', err);
+        res.status(500).json({ error: 'Server error', details: err.message });
     }
 });
 
