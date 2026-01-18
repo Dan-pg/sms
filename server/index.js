@@ -67,6 +67,21 @@ app.post('/api/classes', async (req, res) => {
     }
 });
 
+// Delete Class
+app.delete('/api/classes/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await db.query('DELETE FROM classes WHERE id = $1', [id]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Class not found' });
+        }
+        res.json({ message: 'Class deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting class:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // Get All Students
 app.get('/api/students', async (req, res) => {
     try {

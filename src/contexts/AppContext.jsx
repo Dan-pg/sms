@@ -182,9 +182,22 @@ export const AppProvider = ({ children }) => {
     ));
   };
 
-  const deleteClass = (classId) => {
-    // TODO: Implement API delete
-    setClasses(prev => prev.filter(c => c.id !== classId));
+  const deleteClass = async (classId) => {
+    try {
+      const res = await fetch(`${API_URL}/classes/${classId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setClasses(prev => prev.filter(c => c.id !== classId));
+        notify('Class deleted successfully', 'success');
+      } else {
+        const errorData = await res.json();
+        notify(`Failed to delete class: ${errorData.error || 'Unknown error'}`, 'error');
+      }
+    } catch (err) {
+      console.error("Error deleting class:", err);
+      notify('Network error when deleting class.', 'error');
+    }
   };
 
   const deleteStudent = async (studentId) => {
