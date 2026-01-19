@@ -3,7 +3,7 @@ import { differenceInDays, isFuture, isPast } from 'date-fns';
 import { CheckCircle, Warning, Info, X } from 'phosphor-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
-
+console.log("API_URL:", API_URL);
 
 const ToastContext = createContext();
 
@@ -28,6 +28,7 @@ const ToastContainer = ({ toasts, removeToast }) => {
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
+  console.log("Stats Provider Loaded - Version 2 (API Delete)");
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -183,6 +184,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const deleteClass = async (classId) => {
+    console.log("Attempting to delete class via API:", classId);
     try {
       const res = await fetch(`${API_URL}/classes/${classId}`, {
         method: 'DELETE'
