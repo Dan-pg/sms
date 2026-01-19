@@ -235,7 +235,6 @@ export const AppProvider = ({ children }) => {
       updateStudent,
       addClass,
       updateClass,
-      updateClass,
       toggleCertificateIssued,
       deleteClass,
       deleteStudent,
