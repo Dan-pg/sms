@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { parse, isValid, format } from 'date-fns';
 
-const EnrollmentForm = ({ onClose }) => {
+const EnrollmentForm = ({ onClose, initialClass = null }) => {
     const { enrollStudent, classes, notify } = useAppContext();
     const [formData, setFormData] = useState({
         name: '',
@@ -10,8 +10,8 @@ const EnrollmentForm = ({ onClose }) => {
         organization: '',
         email: '',
         phone: '',
-        className: '',
-        classId: '',
+        className: initialClass ? initialClass.name : '',
+        classId: initialClass ? initialClass.id : '',
         idType: 'National ID'
     });
 

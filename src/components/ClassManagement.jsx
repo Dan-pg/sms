@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { differenceInMilliseconds, format } from 'date-fns';
-import { Circle, CheckSquare, Square, Trash, CaretDown, CaretUp, PencilSimple, FileXls, X, DownloadSimple } from 'phosphor-react';
+import { Circle, CheckSquare, Square, Trash, CaretDown, CaretUp, PencilSimple, FileXls, X, DownloadSimple, UserPlus } from 'phosphor-react';
 import * as XLSX from 'xlsx';
+import EnrollmentForm from './EnrollmentForm';
 
 const SheetPreviewModal = ({ data, filename, onClose, onDownload }) => {
     return (
@@ -81,7 +82,7 @@ const ProgressBar = ({ start, end }) => {
     );
 };
 
-const ClassCard = ({ classData, onPreview }) => {
+const ClassCard = ({ classData, onPreview, onAddStudent }) => {
     const { toggleCertificateIssued, deleteClass, students, updateClass, notify } = useAppContext();
     const isEnded = new Date() > new Date(classData.endDate);
     const [expanded, setExpanded] = useState(false);
@@ -139,6 +140,25 @@ const ClassCard = ({ classData, onPreview }) => {
                     <h3 style={{ fontSize: '1.2rem', fontWeight: '600' }}>{classData.name} <span style={{ fontSize: '0.8em', color: 'var(--text-muted)' }}>({enrolledStudents.length})</span></h3>
                 </div>
                 <div className="flex-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    {(isEnded || new Date() < new Date(classData.endDate)) && (
+                        <button
+                            onClick={() => onAddStudent(classData)}
+                            className="flex-center gap-2"
+                            style={{
+                                background: 'rgba(30, 215, 96, 0.2)',
+                                border: '1px solid rgba(30, 215, 96, 0.4)',
+                                color: '#1ed760',
+                                padding: '0.2rem 0.5rem',
+                                borderRadius: 'var(--radius-sm)',
+                                cursor: 'pointer',
+                                fontSize: '0.9rem'
+                            }}
+                            title="Add Student"
+                        >
+                            <UserPlus size={20} />
+                            Add Student
+                        </button>
+                    )}
                     {isEnded && (
                         <div
                             className="flex-center gap-2"
@@ -333,6 +353,8 @@ const ClassManagement = () => {
     const { classes, notify } = useAppContext();
     const [showForm, setShowForm] = useState(false);
     const [previewConfig, setPreviewConfig] = useState(null);
+    const [showEnrollModal, setShowEnrollModal] = useState(false);
+    const [selectedClass, setSelectedClass] = useState(null);
 
     const confirmDownload = () => {
         if (!previewConfig) return;
@@ -372,7 +394,15 @@ const ClassManagement = () => {
                         No classes scheduled yet.
                     </div>
                 ) : (
-                    classes.map(c => <ClassCard key={c.id} classData={c} onPreview={setPreviewConfig} />)
+                    classes.map(c => <ClassCard
+                        key={c.id}
+                        classData={c}
+                        onPreview={setPreviewConfig}
+                        onAddStudent={(cls) => {
+                            setSelectedClass(cls);
+                            setShowEnrollModal(true);
+                        }}
+                    />)
                 )}
             </div>
 
@@ -383,6 +413,21 @@ const ClassManagement = () => {
                     onClose={() => setPreviewConfig(null)}
                     onDownload={confirmDownload}
                 />
+            )}
+
+            {showEnrollModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                    background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center',
+                    backdropFilter: 'blur(5px)'
+                }} onClick={() => setShowEnrollModal(false)}>
+                    <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '600px' }}>
+                        <EnrollmentForm
+                            onClose={() => setShowEnrollModal(false)}
+                            initialClass={selectedClass}
+                        />
+                    </div>
+                </div>
             )}
         </div>
     );
