@@ -71,6 +71,27 @@ app.post('/api/classes', async (req, res) => {
 app.delete('/api/classes/:id', async (req, res) => {
     const { id } = req.params;
     try {
+        // 1. Find all students in this class to delete their ID files
+        const students = await db.query('SELECT id_file_path FROM students WHERE class_id = $1', [id]);
+
+        // 2. Delete the files
+        students.rows.forEach(student => {
+            if (student.id_file_path) {
+                const filePath = path.join(uploadDir, student.id_file_path);
+                if (fs.existsSync(filePath)) {
+                    try {
+                        fs.unlinkSync(filePath);
+                    } catch (e) {
+                        console.error('Failed to delete file:', filePath, e);
+                    }
+                }
+            }
+        });
+
+        // 3. Delete the students from DB
+        await db.query('DELETE FROM students WHERE class_id = $1', [id]);
+
+        // 4. Finally, delete the class
         const result = await db.query('DELETE FROM classes WHERE id = $1', [id]);
         if (result.rowCount === 0) {
             return res.status(404).json({ error: 'Class not found' });
