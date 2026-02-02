@@ -19,7 +19,7 @@ const EnrollmentForm = ({ onClose, initialClass = null }) => {
 
     const predefinedClasses = [
         "CCNA", "CISSP", "CISM", "CEH", "CCNP", "COMPTIA SECURITY+",
-        "ITIL", "MS PROJECT", "VM WARE", "LINUX", "PMP", "ORACLE",
+        "ITIL", "MS PROJECT", "MS SERVER", "VM WARE", "LINUX", "PMP", "ORACLE",
         "ICDL", "DATA SCIENCE", "ADVANCED EXCEL"
     ];
 
