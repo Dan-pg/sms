@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { differenceInDays, isFuture, isPast } from 'date-fns';
+import { differenceInDays, differenceInCalendarDays, isFuture, isPast } from 'date-fns';
 import { CheckCircle, Warning, Info, X } from 'phosphor-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -218,8 +218,24 @@ export const AppProvider = ({ children }) => {
   const getStats = () => {
     const now = new Date();
     const totalClasses = classes.length;
-    const futureClasses = classes.filter(c => isFuture(new Date(c.startDate))).length;
-    const endedClasses = classes.filter(c => isPast(new Date(c.endDate))).length;
+
+    // Use calendar days for comparison to ensure classes starting "today" are Active, not Future.
+    // Future: Starts tomorrow or later (diff > 0)
+    const futureClasses = classes.filter(c => {
+      const start = new Date(c.startDate);
+      // We compare start date to now. If start date is strictly in the future (tomorrow+), it's future.
+      // However, differenceInCalendarDays(start, now) > 0 means start is at least 1 day ahead.
+      // If start is today, diff is 0.
+      return differenceInCalendarDays(start, now) > 0;
+    }).length;
+
+    // Ended: Ends yesterday or earlier (diff < 0)
+    const endedClasses = classes.filter(c => {
+      const end = new Date(c.endDate);
+      // If end is today, diff is 0. If end is yesterday, diff is -1.
+      return differenceInCalendarDays(end, now) < 0;
+    }).length;
+
     const activeClasses = totalClasses - futureClasses - endedClasses;
 
     return { totalClasses, futureClasses, endedClasses, activeClasses, totalStudents: students.length };
